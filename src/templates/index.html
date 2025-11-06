@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Tarefas</title>
+</head>
+<body>
+    <h1>Minhas Tarefas</h1>
+
+    <form action="/tarefas" method="post">
+        <input type="text" name="titulo" placeholder="Título" required>
+        <input type="text" name="descricao" placeholder="Descrição" required>
+        <select name="prioridade">
+            <option value="Alta">Alta</option>
+            <option value="Média">Média</option>
+            <option value="Baixa">Baixa</option>
+        </select>
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <ul>
+        {% for tarefa in tarefas %}
+            <li><strong>{{ tarefa.titulo }}</strong> - {{ tarefa.descricao }} ({{ tarefa.prioridade }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
