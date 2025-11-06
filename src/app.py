@@ -21,6 +21,10 @@ def criar_tarefa():
 
 @app.route('/tarefas', methods=['GET'])
 def listar_tarefas():
+    prioridade = request.args.get('prioridade')
+    if prioridade:
+        filtradas = [t for t in tarefas if t['prioridade'] == prioridade]
+        return jsonify(filtradas)
     return jsonify(tarefas)
 
 @app.route('/tarefas/<int:id>', methods=['PUT'])
