@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect
 import json
 import os
 
@@ -28,6 +28,10 @@ def salvar_tarefas():
 app = Flask(__name__)
 carregar_tarefas()
 
+@app.route("/")
+def pagina_inicial():
+    return render_template("index.html", tarefas=tarefas)
+
 @app.route("/tarefas", methods=["GET"])
 def listar_tarefas():
     prioridade = request.args.get("prioridade")
@@ -39,7 +43,7 @@ def listar_tarefas():
 @app.route("/tarefas", methods=["POST"])
 def criar_tarefa():
     global id_atual
-    dados = request.get_json()
+    dados = request.form if request.form else request.get_json()
     tarefa = {
         "id": id_atual,
         "titulo": dados["titulo"],
@@ -49,7 +53,7 @@ def criar_tarefa():
     tarefas.append(tarefa)
     id_atual += 1
     salvar_tarefas()
-    return jsonify(tarefa), 201
+    return redirect("/")
 
 @app.route("/tarefas/<int:id>", methods=["PUT"])
 def atualizar_tarefa(id):
