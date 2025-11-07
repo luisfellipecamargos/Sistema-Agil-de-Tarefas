@@ -7,7 +7,10 @@
     <h1>Minhas Tarefas</h1>
     <ul>
         {% for tarefa in tarefas %}
-            <li><strong>{{ tarefa.titulo }}</strong> - {{ tarefa.descricao }} ({{ tarefa.prioridade }})</li>
+            <li>
+                <strong>{{ tarefa.titulo }}</strong> - {{ tarefa.descricao }} 
+                ({{ tarefa.prioridade }}) - Status: {{ tarefa.status }}
+            </li>
         {% endfor %}
     </ul>
 
@@ -19,6 +22,10 @@
             <option value="Alta">Alta</option>
             <option value="Média">Média</option>
             <option value="Baixa">Baixa</option>
+        </select><br>
+        <select name="status">
+            <option value="pendente">Pendente</option>
+            <option value="concluída">Concluída</option>
         </select><br>
         <button type="submit">Criar</button>
     </form>
