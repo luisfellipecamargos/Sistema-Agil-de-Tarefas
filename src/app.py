@@ -2,58 +2,42 @@ from flask import Flask, request, jsonify, render_template, redirect
 import json
 import os
 
-ARQUIVO_TAREFAS = "tarefas.json"
+app = Flask(__name__)
+CAMINHO_ARQUIVO = os.path.join(os.path.dirname(__file__), "tarefas.json")
 
 def carregar_tarefas():
-    global tarefas, id_atual
-    if os.path.exists(ARQUIVO_TAREFAS):
-        with open(ARQUIVO_TAREFAS, "r") as f:
-            try:
-                tarefas = json.load(f)
-                if tarefas:
-                    id_atual = max(t["id"] for t in tarefas) + 1
-                else:
-                    id_atual = 1
-            except json.JSONDecodeError:
-                tarefas = []
-                id_atual = 1
-    else:
-        tarefas = []
-        id_atual = 1
+    if os.path.exists(CAMINHO_ARQUIVO):
+        with open(CAMINHO_ARQUIVO, "r") as f:
+            return json.load(f)
+    return []
 
-def salvar_tarefas():
-    with open(ARQUIVO_TAREFAS, "w") as f:
+def salvar_tarefas(tarefas):
+    with open(CAMINHO_ARQUIVO, "w") as f:
         json.dump(tarefas, f, indent=4)
 
-app = Flask(__name__)
-carregar_tarefas()
+tarefas = carregar_tarefas()
 
 @app.route("/")
-def pagina_inicial():
+def index():
     return render_template("index.html", tarefas=tarefas)
 
 @app.route("/tarefas", methods=["GET"])
 def listar_tarefas():
-    prioridade = request.args.get("prioridade")
-    if prioridade:
-        filtradas = [t for t in tarefas if t["prioridade"] == prioridade]
-        return jsonify(filtradas)
     return jsonify(tarefas)
 
 @app.route("/tarefas", methods=["POST"])
 def criar_tarefa():
-    global id_atual
     dados = request.form if request.form else request.get_json()
-    tarefa = {
-        "id": id_atual,
+    nova_tarefa = {
+        "id": len(tarefas) + 1,
         "titulo": dados["titulo"],
         "descricao": dados["descricao"],
-        "prioridade": dados["prioridade"]
+        "prioridade": dados["prioridade"],
+        "status": "pendente"
     }
-    tarefas.append(tarefa)
-    id_atual += 1
-    salvar_tarefas()
-    return redirect("/")
+    tarefas.append(nova_tarefa)
+    salvar_tarefas(tarefas)
+    return redirect("/") if request.form else jsonify(nova_tarefa)
 
 @app.route("/tarefas/<int:id>", methods=["PUT"])
 def atualizar_tarefa(id):
@@ -61,18 +45,6 @@ def atualizar_tarefa(id):
     for tarefa in tarefas:
         if tarefa["id"] == id:
             tarefa.update(dados)
-            salvar_tarefas()
+            salvar_tarefas(tarefas)
             return jsonify(tarefa)
-    return jsonify({"erro": "Tarefa não encontrada"}), 404
-
-@app.route("/tarefas/<int:id>", methods=["DELETE"])
-def excluir_tarefa(id):
-    for tarefa in tarefas:
-        if tarefa["id"] == id:
-            tarefas.remove(tarefa)
-            salvar_tarefas()
-            return jsonify({"mensagem": "Tarefa excluída"})
-    return jsonify({"erro": "Tarefa não encontrada"}), 404
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return
