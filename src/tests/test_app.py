@@ -12,12 +12,13 @@ def test_listar_tarefas(cliente):
     assert resposta.status_code == 200
     assert isinstance(resposta.json, list)
 
-def test_criar_tarefa(cliente):
+def test_criar_tarefa_com_status(cliente):
     nova = {
-        "titulo": "Teste",
+        "titulo": "Teste com status",
         "descricao": "Tarefa de teste",
-        "prioridade": "Alta"
+        "prioridade": "Alta",
+        "status": "concluída"
     }
     resposta = cliente.post("/tarefas", json=nova)
     assert resposta.status_code in [200, 302]
-    assert any(t["titulo"] == "Teste" for t in tarefas)
+    assert any(t["titulo"] == "Teste com status" and t["status"] == "concluída" for t in tarefas)
