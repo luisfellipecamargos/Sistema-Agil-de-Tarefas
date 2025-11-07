@@ -33,7 +33,7 @@ def criar_tarefa():
         "titulo": dados["titulo"],
         "descricao": dados["descricao"],
         "prioridade": dados["prioridade"],
-        "status": "pendente"
+        "status": dados.get("status", "pendente")
     }
     tarefas.append(nova_tarefa)
     salvar_tarefas(tarefas)
@@ -47,4 +47,11 @@ def atualizar_tarefa(id):
             tarefa.update(dados)
             salvar_tarefas(tarefas)
             return jsonify(tarefa)
-    return
+    return jsonify({"erro": "Tarefa não encontrada"}), 404
+
+@app.route("/tarefas/<int:id>", methods=["DELETE"])
+def excluir_tarefa(id):
+    global tarefas
+    tarefas = [t for t in tarefas if t["id"] != id]
+    salvar_tarefas(tarefas)
+    return jsonify({"mensagem": "Tarefa excluída"})
